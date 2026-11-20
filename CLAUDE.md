@@ -29,3 +29,8 @@ El `README.md` indica que el proyecto sigue Spec Driven Design (comandos `/spec`
 - `app.jsx` — router casero: la ruta es un objeto `{name, ...}` serializado en `location.hash`; la sesión vive en `localStorage["av_user"]` y los puntajes en `localStorage["av_scores"]`. Al portar, esto es estado solo de cliente (requiere `"use client"`) y debe encajar con el modelo de routing y cache de Next en vez de replicar el hash.
 - Pantallas: `biblioteca` (catálogo), `detalle`, `reproductor` (jugar), `auth`, `salon` (ranking); `nav.jsx` es la barra de navegación.
 - `styles.css` (~950 líneas) — todo el estilo del prototipo (clases `av-*`, covers `cover-*`).
+
+
+## Skills
+
+Utiliza siempre /frontend-design para diseñar la interfaz de usuario.
