@@ -30,11 +30,20 @@ export function writeUser(user: User | null): void {
   } catch {}
 }
 
-export function readScores(): SavedScore[] {
+/** Lee el JSON crudo de av_scores (null si no existe o localStorage no está disponible). */
+export function readScoresRaw(): string | null {
   try {
-    const raw = JSON.parse(localStorage.getItem(SCORES_KEY) || "[]");
-    if (Array.isArray(raw)) {
-      return raw.filter(
+    return localStorage.getItem(SCORES_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function parseScores(raw: string | null): SavedScore[] {
+  try {
+    const parsed = JSON.parse(raw || "[]");
+    if (Array.isArray(parsed)) {
+      return parsed.filter(
         (s): s is SavedScore =>
           s &&
           typeof s.game === "string" &&
@@ -45,6 +54,10 @@ export function readScores(): SavedScore[] {
     }
   } catch {}
   return [];
+}
+
+export function readScores(): SavedScore[] {
+  return parseScores(readScoresRaw());
 }
 
 export function appendScore(entry: Omit<SavedScore, "at">): void {
