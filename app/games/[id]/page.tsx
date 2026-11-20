@@ -10,7 +10,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({
   params,
-}: PageProps<"/juegos/[id]">): Promise<Metadata> {
+}: PageProps<"/games/[id]">): Promise<Metadata> {
   const { id } = await params;
   const game = GAMES.find((g) => g.id === id);
   if (!game) return {};
@@ -19,7 +19,7 @@ export async function generateMetadata({
 
 export default async function GameDetailPage({
   params,
-}: PageProps<"/juegos/[id]">) {
+}: PageProps<"/games/[id]">) {
   const { id } = await params;
   const game = GAMES.find((g) => g.id === id);
   if (!game) notFound();
@@ -72,7 +72,7 @@ export default async function GameDetailPage({
             </div>
           </div>
           <div className="detail-actions">
-            <Link href={`/juegos/${game.id}/jugar`} className="btn xl pulse">
+            <Link href={`/games/${game.id}/play`} className="btn xl pulse">
               ▶ &nbsp;JUGAR AHORA
             </Link>
             <Link href="/" className="btn ghost lg">
