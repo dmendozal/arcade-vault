@@ -1,6 +1,6 @@
 # SPEC 01 — MVP visual de Arcade Vault (todas las pantallas)
 
-> **Status:** Aprobado  
+> **Status:** Implementado  
 > **Depends on:** Ninguna (los estilos de la rama `02-styles` ya están en `app/globals.css` y `app/layout.tsx`)
 > **Date:** 2026-11-20
 > **Objective:** Portar a Next.js/TypeScript las cinco pantallas del prototipo `references/templates/` (biblioteca, detalle, reproductor simulado, acceso y salón de la fama) como rutas reales del App Router, sin implementar ningún juego.
