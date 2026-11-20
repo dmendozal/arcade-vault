@@ -5,11 +5,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "@/components/session-provider";
 
-type Section = "library" | "hall-of-fame" | "login";
+type Section = "home" | "library" | "hall-of-fame" | "about" | "login";
 
 function sectionOf(pathname: string): Section | null {
-  if (pathname === "/" || pathname.startsWith("/games")) return "library";
+  if (pathname === "/") return "home";
+  if (pathname.startsWith("/library") || pathname.startsWith("/games")) return "library";
   if (pathname.startsWith("/hall-of-fame")) return "hall-of-fame";
+  if (pathname.startsWith("/about")) return "about";
   if (pathname.startsWith("/login")) return "login";
   return null;
 }
@@ -32,11 +34,17 @@ export function Nav() {
           </div>
         </Link>
         <div className="links">
-          <Link href="/" className={cls("library")}>
+          <Link href="/" className={cls("home")}>
+            Inicio
+          </Link>
+          <Link href="/library" className={cls("library")}>
             Biblioteca
           </Link>
           <Link href="/hall-of-fame" className={cls("hall-of-fame")}>
             Salón de la Fama
+          </Link>
+          <Link href="/about" className={cls("about")}>
+            Acerca de
           </Link>
         </div>
         <div className="spacer"></div>
@@ -73,11 +81,17 @@ export function Nav() {
         >
           MENÚ
         </div>
-        <Link href="/" className={cls("library")} onClick={close}>
+        <Link href="/" className={cls("home")} onClick={close}>
+          Inicio
+        </Link>
+        <Link href="/library" className={cls("library")} onClick={close}>
           Biblioteca
         </Link>
         <Link href="/hall-of-fame" className={cls("hall-of-fame")} onClick={close}>
           Salón de la Fama
+        </Link>
+        <Link href="/about" className={cls("about")} onClick={close}>
+          Acerca de
         </Link>
         <Link href="/login" className={cls("login")} onClick={close}>
           {user ? "Cuenta" : "Iniciar Sesión"}
