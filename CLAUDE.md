@@ -31,6 +31,19 @@ El `README.md` indica que el proyecto sigue Spec Driven Design (comandos `/spec`
 - `styles.css` (~950 líneas) — todo el estilo del prototipo (clases `av-*`, covers `cover-*`).
 
 
+## Supabase
+
+Proyecto vinculado: `emrhttofgulwnllfvvdn`, gestionado con el MCP de Supabase (`.mcp.json`, versionado: solo contiene el `project_ref`, no secretos). No hay Supabase CLI ni entorno local.
+
+Variables de entorno (`.env.local`, plantilla en `.env.example`): `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Usar siempre la publishable key; nunca `service_role` ni la `anon` legacy, y jamás en variables `NEXT_PUBLIC_`.
+
+Clientes (`@supabase/ssr`), ambos exportan `createClient` y lanzan un error claro si falta una variable (validación en `lib/supabase/env.ts`):
+
+- `lib/supabase/client.ts` — para Client Components (`createBrowserClient`).
+- `lib/supabase/server.ts` — asíncrono, para Server Components, Route Handlers y Server Actions (`createServerClient` con `await cookies()`). Crear uno por petición. Con `cacheComponents`, `cookies()` es un API de request time: llamarlo dentro de `<Suspense>` o en un route handler.
+
+Pendiente (cada uno en su propio spec): Auth (incluido `proxy` de refresco de sesión y reemplazo de `av_user`), tablas/RLS/migraciones y tipos generados, puntajes persistidos (`av_scores` sigue en `localStorage`), Realtime y Edge Functions.
+
 ## Skills
 
 Utiliza siempre /frontend-design para diseñar la interfaz de usuario.
