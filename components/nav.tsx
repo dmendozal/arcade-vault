@@ -5,12 +5,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "@/components/session-provider";
 
-type Section = "biblioteca" | "salon" | "acceso";
+type Section = "home" | "library" | "hall-of-fame" | "about" | "login";
 
 function sectionOf(pathname: string): Section | null {
-  if (pathname === "/" || pathname.startsWith("/juegos")) return "biblioteca";
-  if (pathname.startsWith("/salon")) return "salon";
-  if (pathname.startsWith("/acceso")) return "acceso";
+  if (pathname === "/") return "home";
+  if (pathname.startsWith("/library") || pathname.startsWith("/games")) return "library";
+  if (pathname.startsWith("/hall-of-fame")) return "hall-of-fame";
+  if (pathname.startsWith("/about")) return "about";
+  if (pathname.startsWith("/login")) return "login";
   return null;
 }
 
@@ -32,11 +34,17 @@ export function Nav() {
           </div>
         </Link>
         <div className="links">
-          <Link href="/" className={cls("biblioteca")}>
+          <Link href="/" className={cls("home")}>
+            Inicio
+          </Link>
+          <Link href="/library" className={cls("library")}>
             Biblioteca
           </Link>
-          <Link href="/salon" className={cls("salon")}>
+          <Link href="/hall-of-fame" className={cls("hall-of-fame")}>
             Salón de la Fama
+          </Link>
+          <Link href="/about" className={cls("about")}>
+            Acerca de
           </Link>
         </div>
         <div className="spacer"></div>
@@ -49,7 +57,7 @@ export function Nav() {
             {user.name} ▾
           </button>
         ) : (
-          <Link href="/acceso" className="btn auth-btn">
+          <Link href="/login" className="btn auth-btn">
             Iniciar Sesión
           </Link>
         )}
@@ -73,13 +81,19 @@ export function Nav() {
         >
           MENÚ
         </div>
-        <Link href="/" className={cls("biblioteca")} onClick={close}>
+        <Link href="/" className={cls("home")} onClick={close}>
+          Inicio
+        </Link>
+        <Link href="/library" className={cls("library")} onClick={close}>
           Biblioteca
         </Link>
-        <Link href="/salon" className={cls("salon")} onClick={close}>
+        <Link href="/hall-of-fame" className={cls("hall-of-fame")} onClick={close}>
           Salón de la Fama
         </Link>
-        <Link href="/acceso" className={cls("acceso")} onClick={close}>
+        <Link href="/about" className={cls("about")} onClick={close}>
+          Acerca de
+        </Link>
+        <Link href="/login" className={cls("login")} onClick={close}>
           {user ? "Cuenta" : "Iniciar Sesión"}
         </Link>
         <div style={{ flex: 1 }}></div>
