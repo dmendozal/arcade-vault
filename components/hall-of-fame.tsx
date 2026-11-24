@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { GAMES } from "@/lib/games";
+import type { Game } from "@/lib/games";
 import { seededScores, type ScoreRow } from "@/lib/scores";
 import { parseScores, readScoresRaw } from "@/lib/storage";
 import { useSession } from "@/components/session-provider";
@@ -23,13 +23,13 @@ function formatDate(ts: number) {
   return `${dd}/${mm}/${d.getFullYear()}`;
 }
 
-export function HallOfFame() {
+export function HallOfFame({ games }: { games: Game[] }) {
   const { user } = useSession();
-  const [tab, setTab] = useState(GAMES[0].id);
+  const [tab, setTab] = useState(games[0].id);
   // Servidor y primer render del cliente: null (sin puntajes locales) -> sin desajuste de hidratación.
   const rawScores = useSyncExternalStore(subscribe, readScoresRaw, () => null);
 
-  const game = GAMES.find((g) => g.id === tab) ?? GAMES[0];
+  const game = games.find((g) => g.id === tab) ?? games[0];
 
   const saved = useMemo(
     () => parseScores(rawScores).filter((s) => s.game === tab),
@@ -71,7 +71,7 @@ export function HallOfFame() {
       </div>
 
       <div className="hall-tabs">
-        {GAMES.map((g) => (
+        {games.map((g) => (
           <button
             key={g.id}
             className={"chip" + (tab === g.id ? " active" : "")}

@@ -1,18 +1,19 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { GAMES } from "@/lib/games";
+import { getGame, getGames } from "@/lib/data/games";
 import { GamePlayer } from "@/components/game-player";
 
-export function generateStaticParams() {
-  return GAMES.map((g) => ({ id: g.id }));
+export async function generateStaticParams() {
+  const games = await getGames();
+  return games.map((g) => ({ id: g.id }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps<"/games/[id]/play">): Promise<Metadata> {
   const { id } = await params;
-  const game = GAMES.find((g) => g.id === id);
+  const game = await getGame(id);
   return game ? { title: `Jugando ${game.title} · Arcade Vault` } : {};
 }
 
@@ -31,7 +32,7 @@ async function Player({
   params: PageProps<"/games/[id]/play">["params"];
 }) {
   const { id } = await params;
-  const game = GAMES.find((g) => g.id === id);
+  const game = await getGame(id);
   if (!game) notFound();
   return <GamePlayer game={game} />;
 }
