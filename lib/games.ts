@@ -102,6 +102,17 @@ export const GAMES: Game[] = [
     best: 24,
     plays: "4.2K",
   },
+  {
+    id: "asteroids",
+    title: "ASTEROIDS",
+    short: "Pilota con inercia y parte rocas en pedazos.",
+    long: "Una nave vectorial con inercia flota en un espacio sin bordes. Rota, propulsa y dispara para partir cada roca en fragmentos más pequeños. Despeja el campo para subir de nivel y recoge el disparo triple antes de que se esfume.",
+    cat: "SHOOTER",
+    cover: "cover-asteroids",
+    color: "cyan",
+    best: 36800,
+    plays: "3.2K",
+  },
 ];
 
 export const CATS: ("TODOS" | Category)[] = [
