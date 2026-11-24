@@ -6,6 +6,7 @@ import {
 } from "react";
 import { ArkanoidCanvas } from "@/components/arkanoid-canvas";
 import { AsteroidsCanvas } from "@/components/asteroids-canvas";
+import { SnakeCanvas } from "@/components/snake-canvas";
 import { TetrisCanvas } from "@/components/tetris-canvas";
 
 // Solo se importa desde Client Components (components/game-player.tsx).
@@ -68,6 +69,14 @@ export const GAME_REGISTRY: Record<string, RegisteredGame> = {
     controls: controlsNote(
       [key("←"), " ", key("→"), " mover"],
       ["o el ", "ratón"],
+    ),
+  },
+  serpentina: {
+    Canvas: SnakeCanvas,
+    hasLives: false,
+    controls: controlsNote(
+      [key("←"), " ", key("↑"), " ", key("→"), " ", key("↓"), " mover"],
+      ["o ", key("W"), " ", key("A"), " ", key("S"), " ", key("D")],
     ),
   },
 };
