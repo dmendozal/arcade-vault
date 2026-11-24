@@ -67,7 +67,7 @@ async function GameDetail({
                   textShadow: "0 0 6px rgba(255,0,110,0.5)",
                 }}
               >
-                {game.best.toLocaleString("es-ES")}
+                {game.best?.toLocaleString("es-ES") ?? "—"}
               </div>
             </div>
             <div>
