@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { Game } from "@/lib/games";
 import { useSession } from "@/components/session-provider";
+import { submitScore } from "@/app/games/[id]/play/actions";
 import {
   AsteroidsCanvas,
   type AsteroidsCanvasHandle,
@@ -13,7 +14,7 @@ const LIVES = 3;
 const POINTS_PER_LEVEL = 2500;
 
 export function GamePlayer({ game }: { game: Game }) {
-  const { user, saveScore } = useSession();
+  const { user } = useSession();
   const isAsteroids = game.id === "asteroids";
   const asteroidsRef = useRef<AsteroidsCanvasHandle>(null);
   const [score, setScore] = useState(0);
@@ -24,6 +25,8 @@ export function GamePlayer({ game }: { game: Game }) {
   // null = el jugador no ha editado el nombre; se usa el de la sesión o INVITADO.
   const [nameEdit, setNameEdit] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const name = nameEdit ?? user?.name ?? "INVITADO";
   const level = isAsteroids
@@ -50,6 +53,7 @@ export function GamePlayer({ game }: { game: Game }) {
     setPaused(false);
     setOver(false);
     setSaved(false);
+    setSaveError(null);
   };
 
   const togglePause = (button: HTMLButtonElement) => {
@@ -75,9 +79,19 @@ export function GamePlayer({ game }: { game: Game }) {
     setOver(true);
   };
 
-  const handleSave = () => {
-    saveScore({ game: game.id, score, name });
-    setSaved(true);
+  const handleSave = async () => {
+    if (saving) return;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const result = await submitScore({ gameId: game.id, name, score });
+      if (result.ok) setSaved(true);
+      else setSaveError(result.error);
+    } catch {
+      setSaveError("No se pudo guardar la puntuación. Revisa tu conexión e inténtalo de nuevo.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -205,13 +219,37 @@ export function GamePlayer({ game }: { game: Game }) {
                     setNameEdit(e.target.value.toUpperCase().slice(0, 10))
                   }
                   placeholder="TUS INICIALES"
+                  maxLength={10}
+                  disabled={saving}
                 />
-                <button className="btn yellow" onClick={handleSave}>
-                  GUARDAR PUNTUACIÓN
+                <button
+                  className="btn yellow"
+                  onClick={handleSave}
+                  disabled={saving}
+                >
+                  {saving
+                    ? "GUARDANDO…"
+                    : saveError
+                      ? "REINTENTAR"
+                      : "GUARDAR PUNTUACIÓN"}
                 </button>
               </div>
             ) : (
               <div className="toast-saved">▸ PUNTUACIÓN GUARDADA_</div>
+            )}
+            {!saved && saveError && (
+              <div
+                role="alert"
+                className="mono"
+                style={{
+                  color: "var(--magenta)",
+                  fontSize: 12,
+                  letterSpacing: "0.08em",
+                  margin: "12px 0",
+                }}
+              >
+                ▸ {saveError}
+              </div>
             )}
             <div className="actions">
               <button className="btn" onClick={restart}>
