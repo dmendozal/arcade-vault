@@ -495,6 +495,14 @@ a { color: inherit; text-decoration: none; }
   text-shadow: 0 0 8px var(--yellow);
 }
 
+.cover-asteroids { background: radial-gradient(circle at 50% 50%, #0b0b14, #000 75%); }
+.cover-asteroids::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 200' fill='none' stroke='white' stroke-width='1.6' stroke-linejoin='round'><polygon points='205,52 214,30 236,22 258,26 280,40 287,62 276,84 252,98 228,92 210,76' vector-effect='non-scaling-stroke'/><polygon points='48,50 56,36 74,31 90,40 95,58 84,76 64,78 50,68' vector-effect='non-scaling-stroke'/><polygon points='50,158 55,148 68,149 73,160 66,171 54,170' vector-effect='non-scaling-stroke'/><g transform='translate(160 130) rotate(-40) scale(1.5)'><polygon points='20,0 -12,-9 -7,0 -12,9' vector-effect='non-scaling-stroke'/><polyline points='-8,-4 -19,0 -8,4' stroke='%23ff8200' vector-effect='non-scaling-stroke'/></g><g fill='white' stroke='none'><circle cx='196' cy='100' r='1.8'/><circle cx='209' cy='89' r='1.8'/><circle cx='222' cy='79' r='1.8'/><circle cx='24' cy='24' r='1'/><circle cx='130' cy='28' r='1'/><circle cx='300' cy='120' r='1'/><circle cx='110' cy='170' r='1'/><circle cx='205' cy='170' r='1'/></g><g stroke='cyan' stroke-width='2'><rect x='258' y='142' width='20' height='20' transform='rotate(45 268 152)' vector-effect='non-scaling-stroke'/></g><text x='268' y='156' fill='cyan' stroke='none' font-family='monospace' font-weight='bold' font-size='11' text-anchor='middle'>3x</text></svg>") center / cover no-repeat;
+  filter: drop-shadow(0 0 4px rgba(255,255,255,0.35));
+}
+
 .cover-rana { background: linear-gradient(180deg,#001f2a,#0a0a18); }
 .cover-rana::after {
   content: "";
@@ -672,6 +680,36 @@ a { color: inherit; text-decoration: none; }
   content: ""; width: 8px; height: 8px; border-radius: 50%;
   background: var(--green); box-shadow: 0 0 6px var(--green);
 }
+
+.controls-note {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 28px;
+  margin: 20px 0 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+.controls-note kbd {
+  display: inline-block;
+  min-width: 26px;
+  padding: 2px 7px;
+  margin-right: 2px;
+  border: 1px solid var(--ink-faint);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--bg-2);
+  color: var(--ink);
+  font-family: inherit;
+  text-align: center;
+}
+.touch-notice {
+  display: none;
+  margin: 12px 0 0;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--yellow);
+}
+@media (pointer: coarse) { .touch-notice { display: block; } }
 
 /* fake in-screen game */
 .game-arena {

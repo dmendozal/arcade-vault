@@ -1,16 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { Game } from "@/lib/games";
 import { useSession } from "@/components/session-provider";
+import {
+  AsteroidsCanvas,
+  type AsteroidsCanvasHandle,
+} from "@/components/asteroids-canvas";
 
 const LIVES = 3;
 const POINTS_PER_LEVEL = 2500;
 
 export function GamePlayer({ game }: { game: Game }) {
   const { user, saveScore } = useSession();
+  const isAsteroids = game.id === "asteroids";
+  const asteroidsRef = useRef<AsteroidsCanvasHandle>(null);
   const [score, setScore] = useState(0);
+  const [lives, setLives] = useState(LIVES);
+  const [engineLevel, setEngineLevel] = useState(1);
   const [paused, setPaused] = useState(false);
   const [over, setOver] = useState(false);
   // null = el jugador no ha editado el nombre; se usa el de la sesión o INVITADO.
@@ -18,22 +26,53 @@ export function GamePlayer({ game }: { game: Game }) {
   const [saved, setSaved] = useState(false);
 
   const name = nameEdit ?? user?.name ?? "INVITADO";
-  const level = 1 + Math.floor(score / POINTS_PER_LEVEL);
+  const level = isAsteroids
+    ? engineLevel
+    : 1 + Math.floor(score / POINTS_PER_LEVEL);
 
   useEffect(() => {
-    if (over || paused) return;
+    // Asteroids tiene su propio motor: no usa el puntaje simulado.
+    if (isAsteroids || over || paused) return;
     const t = setInterval(
       () => setScore((s) => s + Math.floor(10 + Math.random() * 90)),
       220,
     );
     return () => clearInterval(t);
-  }, [over, paused]);
+  }, [isAsteroids, over, paused]);
 
   const restart = () => {
-    setScore(0);
+    if (isAsteroids) {
+      // El motor reinicia y notifica puntaje, vidas y nivel por sus callbacks.
+      asteroidsRef.current?.restart();
+    } else {
+      setScore(0);
+    }
     setPaused(false);
     setOver(false);
     setSaved(false);
+  };
+
+  const togglePause = (button: HTMLButtonElement) => {
+    // Evita que Espacio vuelva a activar el botón enfocado durante el juego.
+    button.blur();
+    const next = !paused;
+    setPaused(next);
+    if (isAsteroids) {
+      if (next) asteroidsRef.current?.pause();
+      else asteroidsRef.current?.resume();
+    }
+  };
+
+  const finish = (button: HTMLButtonElement) => {
+    button.blur();
+    if (isAsteroids) asteroidsRef.current?.endGame(); // dispara onGameOver
+    else setOver(true);
+  };
+
+  const handleGameOver = (finalScore: number) => {
+    setScore(finalScore);
+    setPaused(false);
+    setOver(true);
   };
 
   const handleSave = () => {
@@ -57,7 +96,7 @@ export function GamePlayer({ game }: { game: Game }) {
           </div>
           <div className="hud-stat lives">
             <div className="l">Vidas</div>
-            <div className="v">{"♥ ".repeat(LIVES).trim() || "—"}</div>
+            <div className="v">{"♥ ".repeat(lives).trim() || "—"}</div>
           </div>
           <div className="hud-stat level">
             <div className="l">Nivel</div>
@@ -65,10 +104,16 @@ export function GamePlayer({ game }: { game: Game }) {
           </div>
         </div>
         <div className="hud-actions">
-          <button className="btn yellow" onClick={() => setPaused((p) => !p)}>
+          <button
+            className="btn yellow"
+            onClick={(e) => togglePause(e.currentTarget)}
+          >
             {paused ? "REANUDAR" : "PAUSA"}
           </button>
-          <button className="btn magenta" onClick={() => setOver(true)}>
+          <button
+            className="btn magenta"
+            onClick={(e) => finish(e.currentTarget)}
+          >
             FIN
           </button>
           <Link href={`/games/${game.id}`} className="btn ghost">
@@ -79,13 +124,23 @@ export function GamePlayer({ game }: { game: Game }) {
 
       <div className="crt">
         <div className="crt-screen">
-          <div className="game-arena">
-            <div className="grid-floor"></div>
-            <div className="enemy e1"></div>
-            <div className="enemy e2"></div>
-            <div className="enemy e3"></div>
-            <div className="player-ship"></div>
-          </div>
+          {isAsteroids ? (
+            <AsteroidsCanvas
+              ref={asteroidsRef}
+              onScore={setScore}
+              onLives={setLives}
+              onLevel={setEngineLevel}
+              onGameOver={handleGameOver}
+            />
+          ) : (
+            <div className="game-arena">
+              <div className="grid-floor"></div>
+              <div className="enemy e1"></div>
+              <div className="enemy e2"></div>
+              <div className="enemy e3"></div>
+              <div className="player-ship"></div>
+            </div>
+          )}
           {paused && (
             <div
               className="crt-content"
@@ -116,6 +171,25 @@ export function GamePlayer({ game }: { game: Game }) {
           <span>CARGA · 1MB</span>
         </div>
       </div>
+
+      {isAsteroids && (
+        <>
+          <p className="controls-note">
+            <span>
+              <kbd>←</kbd> <kbd>→</kbd> girar
+            </span>
+            <span>
+              <kbd>↑</kbd> propulsar
+            </span>
+            <span>
+              <kbd>Espacio</kbd> disparar
+            </span>
+          </p>
+          <p className="touch-notice">
+            Este juego requiere teclado. En pantallas táctiles no se puede jugar.
+          </p>
+        </>
+      )}
 
       {over && (
         <div className="modal-bd">
