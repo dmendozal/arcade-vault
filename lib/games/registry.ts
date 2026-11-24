@@ -4,6 +4,7 @@ import {
   type ReactNode,
   type Ref,
 } from "react";
+import { ArkanoidCanvas } from "@/components/arkanoid-canvas";
 import { AsteroidsCanvas } from "@/components/asteroids-canvas";
 import { TetrisCanvas } from "@/components/tetris-canvas";
 
@@ -59,6 +60,14 @@ export const GAME_REGISTRY: Record<string, RegisteredGame> = {
       [key("↑"), " o ", key("X"), " rotar"],
       [key("↓"), " bajar"],
       [key("Espacio"), " caída rápida"],
+    ),
+  },
+  arkanoid: {
+    Canvas: ArkanoidCanvas,
+    hasLives: true,
+    controls: controlsNote(
+      [key("←"), " ", key("→"), " mover"],
+      ["o el ", "ratón"],
     ),
   },
 };
