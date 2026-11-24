@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getGame, getGames } from "@/lib/data/games";
-import { seededScores } from "@/lib/scores";
+import { getTopScores } from "@/lib/data/scores";
 
 export async function generateStaticParams() {
   const games = await getGames();
@@ -37,7 +37,7 @@ async function GameDetail({
   const game = await getGame(id);
   if (!game) notFound();
 
-  const scores = seededScores(id.length * 17 + 3, 10);
+  const scores = await getTopScores(id, 10);
 
   return (
     <div className="av-detail fade-in">
@@ -98,9 +98,27 @@ async function GameDetail({
       <aside>
         <div className="leaderboard">
           <h3>MEJORES PUNTUACIONES</h3>
+          {scores.length === 0 && (
+            <div
+              className="lb-row"
+              style={{
+                display: "block",
+                textAlign: "center",
+                padding: "24px 12px",
+                color: "var(--ink-faint)",
+              }}
+            >
+              <span
+                className="pixel"
+                style={{ fontSize: 10, color: "var(--magenta)" }}
+              >
+                AÚN NO HAY PUNTAJES · SÉ EL PRIMERO
+              </span>
+            </div>
+          )}
           {scores.map((r, i) => (
             <div
-              key={r.name}
+              key={r.rank}
               className={
                 "lb-row" +
                 (i === 0 ? " top1" : i === 1 ? " top2" : i === 2 ? " top3" : "")
