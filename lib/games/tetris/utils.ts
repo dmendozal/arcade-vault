@@ -1,5 +1,7 @@
 import { COLS, PIECES, ROWS } from "./constants";
 
+const PIECE_TYPES = PIECES.length - 1;
+
 export type Shape = number[][];
 export type Board = number[][];
 
@@ -25,7 +27,7 @@ export const rotateCW = (shape: Shape): Shape => {
 };
 
 export const randomPiece = (): Piece => {
-  const type = Math.floor(Math.random() * 8) + 1;
+  const type = Math.floor(Math.random() * PIECE_TYPES) + 1;
   const shape = PIECES[type]!.map((row) => [...row]);
   return {
     type,
