@@ -32,11 +32,13 @@ export interface RegisteredGame {
 
 const key = (label: string) => h("kbd", null, label);
 
-const controlsNote = (...items: ReactNode[]) =>
+// Cada item es la lista de hijos de un <span>; se pasan como varargs para que no
+// requieran `key`.
+const controlsNote = (...items: ReactNode[][]) =>
   h(
     "p",
     { className: "controls-note" },
-    ...items.map((item, i) => h("span", { key: i }, item)),
+    ...items.map((item, i) => h("span", { key: i }, ...item)),
   );
 
 export const GAME_REGISTRY: Record<string, RegisteredGame> = {
