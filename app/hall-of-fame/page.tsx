@@ -11,17 +11,31 @@ export const metadata: Metadata = {
 
 const ROWS = 12;
 
-async function HallOfFameContent() {
+async function HallOfFameContent({
+  searchParams,
+}: {
+  searchParams: PageProps<"/hall-of-fame">["searchParams"];
+}) {
+  const { game } = await searchParams;
+  const initialTab = typeof game === "string" ? game : undefined;
   const games = await getGames();
   const tops = await Promise.all(games.map((g) => getTopScores(g.id, ROWS)));
   const scoresByGame = Object.fromEntries(games.map((g, i) => [g.id, tops[i]]));
-  return <HallOfFame games={games} scoresByGame={scoresByGame} />;
+  return (
+    <HallOfFame
+      games={games}
+      scoresByGame={scoresByGame}
+      initialTab={initialTab}
+    />
+  );
 }
 
-export default function SalonPage() {
+export default function SalonPage({
+  searchParams,
+}: PageProps<"/hall-of-fame">) {
   return (
     <Suspense fallback={<div className="av-hall fade-in" aria-busy="true" />}>
-      <HallOfFameContent />
+      <HallOfFameContent searchParams={searchParams} />
     </Suspense>
   );
 }
