@@ -681,6 +681,36 @@ a { color: inherit; text-decoration: none; }
   background: var(--green); box-shadow: 0 0 6px var(--green);
 }
 
+.controls-note {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 28px;
+  margin: 20px 0 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+.controls-note kbd {
+  display: inline-block;
+  min-width: 26px;
+  padding: 2px 7px;
+  margin-right: 2px;
+  border: 1px solid var(--ink-faint);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--bg-2);
+  color: var(--ink);
+  font-family: inherit;
+  text-align: center;
+}
+.touch-notice {
+  display: none;
+  margin: 12px 0 0;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--yellow);
+}
+@media (pointer: coarse) { .touch-notice { display: block; } }
+
 /* fake in-screen game */
 .game-arena {
   position: absolute; inset: 0;
