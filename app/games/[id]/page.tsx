@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -17,9 +18,20 @@ export async function generateMetadata({
   return { title: `${game.title} · Arcade Vault`, description: game.short };
 }
 
-export default async function GameDetailPage({
+export default function GameDetailPage({ params }: PageProps<"/games/[id]">) {
+  // `params` se lee dentro del límite de Suspense para no atar el shell a una URL.
+  return (
+    <Suspense fallback={<div className="av-detail" aria-busy="true" />}>
+      <GameDetail params={params} />
+    </Suspense>
+  );
+}
+
+async function GameDetail({
   params,
-}: PageProps<"/games/[id]">) {
+}: {
+  params: PageProps<"/games/[id]">["params"];
+}) {
   const { id } = await params;
   const game = GAMES.find((g) => g.id === id);
   if (!game) notFound();
