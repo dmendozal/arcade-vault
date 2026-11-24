@@ -6,17 +6,24 @@ import type { Game } from "@/lib/games";
 import { useSession } from "@/components/session-provider";
 import { submitScore } from "@/app/games/[id]/play/actions";
 import {
-  AsteroidsCanvas,
-  type AsteroidsCanvasHandle,
-} from "@/components/asteroids-canvas";
+  GAME_REGISTRY,
+  type GameCanvasHandle,
+  type RegisteredGame,
+} from "@/lib/games/registry";
 
 const LIVES = 3;
 const POINTS_PER_LEVEL = 2500;
 
 export function GamePlayer({ game }: { game: Game }) {
   const { user } = useSession();
-  const isAsteroids = game.id === "asteroids";
-  const asteroidsRef = useRef<AsteroidsCanvasHandle>(null);
+  // Juegos con motor real; el resto usa el simulador.
+  const registered: RegisteredGame | undefined = Object.hasOwn(
+    GAME_REGISTRY,
+    game.id,
+  )
+    ? GAME_REGISTRY[game.id]
+    : undefined;
+  const canvasRef = useRef<GameCanvasHandle>(null);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(LIVES);
   const [engineLevel, setEngineLevel] = useState(1);
@@ -29,24 +36,24 @@ export function GamePlayer({ game }: { game: Game }) {
   const [saveError, setSaveError] = useState<string | null>(null);
 
   const name = nameEdit ?? user?.name ?? "INVITADO";
-  const level = isAsteroids
+  const level = registered
     ? engineLevel
     : 1 + Math.floor(score / POINTS_PER_LEVEL);
 
   useEffect(() => {
-    // Asteroids tiene su propio motor: no usa el puntaje simulado.
-    if (isAsteroids || over || paused) return;
+    // Los juegos con motor propio no usan el puntaje simulado.
+    if (registered || over || paused) return;
     const t = setInterval(
       () => setScore((s) => s + Math.floor(10 + Math.random() * 90)),
       220,
     );
     return () => clearInterval(t);
-  }, [isAsteroids, over, paused]);
+  }, [registered, over, paused]);
 
   const restart = () => {
-    if (isAsteroids) {
+    if (registered) {
       // El motor reinicia y notifica puntaje, vidas y nivel por sus callbacks.
-      asteroidsRef.current?.restart();
+      canvasRef.current?.restart();
     } else {
       setScore(0);
     }
@@ -61,15 +68,15 @@ export function GamePlayer({ game }: { game: Game }) {
     button.blur();
     const next = !paused;
     setPaused(next);
-    if (isAsteroids) {
-      if (next) asteroidsRef.current?.pause();
-      else asteroidsRef.current?.resume();
+    if (registered) {
+      if (next) canvasRef.current?.pause();
+      else canvasRef.current?.resume();
     }
   };
 
   const finish = (button: HTMLButtonElement) => {
     button.blur();
-    if (isAsteroids) asteroidsRef.current?.endGame(); // dispara onGameOver
+    if (registered) canvasRef.current?.endGame(); // dispara onGameOver
     else setOver(true);
   };
 
@@ -110,7 +117,11 @@ export function GamePlayer({ game }: { game: Game }) {
           </div>
           <div className="hud-stat lives">
             <div className="l">Vidas</div>
-            <div className="v">{"♥ ".repeat(lives).trim() || "—"}</div>
+            <div className="v">
+              {registered?.hasLives === false
+                ? "—"
+                : "♥ ".repeat(lives).trim() || "—"}
+            </div>
           </div>
           <div className="hud-stat level">
             <div className="l">Nivel</div>
@@ -138,9 +149,9 @@ export function GamePlayer({ game }: { game: Game }) {
 
       <div className="crt">
         <div className="crt-screen">
-          {isAsteroids ? (
-            <AsteroidsCanvas
-              ref={asteroidsRef}
+          {registered ? (
+            <registered.Canvas
+              ref={canvasRef}
               onScore={setScore}
               onLives={setLives}
               onLevel={setEngineLevel}
@@ -186,19 +197,9 @@ export function GamePlayer({ game }: { game: Game }) {
         </div>
       </div>
 
-      {isAsteroids && (
+      {registered && (
         <>
-          <p className="controls-note">
-            <span>
-              <kbd>←</kbd> <kbd>→</kbd> girar
-            </span>
-            <span>
-              <kbd>↑</kbd> propulsar
-            </span>
-            <span>
-              <kbd>Espacio</kbd> disparar
-            </span>
-          </p>
+          {registered.controls}
           <p className="touch-notice">
             Este juego requiere teclado. En pantallas táctiles no se puede jugar.
           </p>
