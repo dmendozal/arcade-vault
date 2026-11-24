@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       games: {
         Row: {
+          active: boolean
           category: string
           color: string
           cover: string
@@ -27,6 +28,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          active?: boolean
           category: string
           color: string
           cover: string
@@ -38,6 +40,7 @@ export type Database = {
           title: string
         }
         Update: {
+          active?: boolean
           category?: string
           color?: string
           cover?: string

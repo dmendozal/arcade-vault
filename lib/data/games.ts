@@ -12,7 +12,11 @@ export async function getGames(): Promise<Game[]> {
 
   const supabase = createClient();
   const [gamesRes, statsRes] = await Promise.all([
-    supabase.from("games").select("*").order("sort_order", { ascending: true }),
+    supabase
+      .from("games")
+      .select("*")
+      .eq("active", true)
+      .order("sort_order", { ascending: true }),
     supabase.from("game_stats").select("game_id, plays, best"),
   ]);
 

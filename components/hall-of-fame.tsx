@@ -12,11 +12,15 @@ const EMPTY_SLOT = { name: "—", score: "—", date: "\u00A0" };
 export function HallOfFame({
   games,
   scoresByGame,
+  initialTab,
 }: {
   games: Game[];
   scoresByGame: Record<string, ScoreRow[]>;
+  initialTab?: string;
 }) {
-  const [tab, setTab] = useState(games[0]?.id ?? "");
+  const [tab, setTab] = useState(
+    games.some((g) => g.id === initialTab) ? initialTab! : (games[0]?.id ?? ""),
+  );
 
   const rows = scoresByGame[tab] ?? [];
 

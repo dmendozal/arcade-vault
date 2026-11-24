@@ -256,6 +256,12 @@ export function GamePlayer({ game }: { game: Game }) {
               <button className="btn" onClick={restart}>
                 JUGAR DE NUEVO
               </button>
+              <Link
+                href={`/hall-of-fame?game=${game.id}`}
+                className="btn yellow"
+              >
+                VER RANKING
+              </Link>
               <Link href="/library" className="btn magenta">
                 VOLVER AL VAULT
               </Link>
