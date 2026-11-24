@@ -1,0 +1,11 @@
+export const CELL = 40;
+export const COLS = 20;
+export const ROWS = 15;
+export const INITIAL_LENGTH = 3;
+export const POINTS_PER_FRUIT = 10;
+export const FRUITS_PER_LEVEL = 5;
+export const TICK_BASE_MS = 140;
+export const TICK_STEP_MS = 8;
+export const TICK_MIN_MS = 70;
+export const MAX_DT = 50; // ms, tope del dt acumulado por frame
+export const MAX_QUEUED_TURNS = 2;
