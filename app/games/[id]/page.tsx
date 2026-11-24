@@ -2,18 +2,19 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { GAMES } from "@/lib/games";
-import { seededScores } from "@/lib/scores";
+import { getGame, getGames } from "@/lib/data/games";
+import { getTopScores } from "@/lib/data/scores";
 
-export function generateStaticParams() {
-  return GAMES.map((g) => ({ id: g.id }));
+export async function generateStaticParams() {
+  const games = await getGames();
+  return games.map((g) => ({ id: g.id }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps<"/games/[id]">): Promise<Metadata> {
   const { id } = await params;
-  const game = GAMES.find((g) => g.id === id);
+  const game = await getGame(id);
   if (!game) return {};
   return { title: `${game.title} · Arcade Vault`, description: game.short };
 }
@@ -33,10 +34,10 @@ async function GameDetail({
   params: PageProps<"/games/[id]">["params"];
 }) {
   const { id } = await params;
-  const game = GAMES.find((g) => g.id === id);
+  const game = await getGame(id);
   if (!game) notFound();
 
-  const scores = seededScores(id.length * 17 + 3, 10);
+  const scores = await getTopScores(id, 10);
 
   return (
     <div className="av-detail fade-in">
@@ -56,7 +57,7 @@ async function GameDetail({
           <div className="stat-strip">
             <div>
               <div className="l">Partidas</div>
-              <div className="v">{game.plays}</div>
+              <div className="v">{game.plays.toLocaleString("es-ES")}</div>
             </div>
             <div>
               <div className="l">Mejor global</div>
@@ -67,7 +68,7 @@ async function GameDetail({
                   textShadow: "0 0 6px rgba(255,0,110,0.5)",
                 }}
               >
-                {game.best.toLocaleString("es-ES")}
+                {game.best?.toLocaleString("es-ES") ?? "—"}
               </div>
             </div>
             <div>
@@ -97,9 +98,27 @@ async function GameDetail({
       <aside>
         <div className="leaderboard">
           <h3>MEJORES PUNTUACIONES</h3>
+          {scores.length === 0 && (
+            <div
+              className="lb-row"
+              style={{
+                display: "block",
+                textAlign: "center",
+                padding: "24px 12px",
+                color: "var(--ink-faint)",
+              }}
+            >
+              <span
+                className="pixel"
+                style={{ fontSize: 10, color: "var(--magenta)" }}
+              >
+                AÚN NO HAY PUNTAJES · SÉ EL PRIMERO
+              </span>
+            </div>
+          )}
           {scores.map((r, i) => (
             <div
-              key={r.name}
+              key={r.rank}
               className={
                 "lb-row" +
                 (i === 0 ? " top1" : i === 1 ? " top2" : i === 2 ? " top3" : "")

@@ -1,10 +1,11 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FeatureIcon } from "@/components/feature-icon";
 import { MiniCard } from "@/components/mini-card";
 import { PixelSilhouettes } from "@/components/pixel-silhouettes";
 import { RevealSection } from "@/components/reveal-section";
-import { GAMES } from "@/lib/games";
+import { getGames } from "@/lib/data/games";
 import {
   ACTIVITY,
   FAQ,
@@ -20,6 +21,17 @@ export const metadata: Metadata = {
 };
 
 const TOP_CLASS = ["top1", "top2", "top3"];
+
+async function GamesPreview() {
+  const games = await getGames();
+  return (
+    <div className="mini-rail">
+      {games.slice(0, 6).map((g) => (
+        <MiniCard key={g.id} game={g} />
+      ))}
+    </div>
+  );
+}
 
 export default function Home() {
   return (
@@ -85,11 +97,9 @@ export default function Home() {
           <h2 className="section-title">JUEGOS DISPONIBLES AHORA</h2>
           <div className="section-rule"></div>
         </div>
-        <div className="mini-rail">
-          {GAMES.slice(0, 6).map((g) => (
-            <MiniCard key={g.id} game={g} />
-          ))}
-        </div>
+        <Suspense fallback={<div className="mini-rail" aria-busy="true" />}>
+          <GamesPreview />
+        </Suspense>
         <div style={{ textAlign: "center", marginTop: 24 }}>
           <Link href="/library" className="btn lg">
             VER TODOS LOS JUEGOS →

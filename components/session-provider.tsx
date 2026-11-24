@@ -9,20 +9,13 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import {
-  appendScore,
-  readUser,
-  writeUser,
-  type SavedScore,
-  type User,
-} from "@/lib/storage";
+import { readUser, writeUser, type User } from "@/lib/storage";
 
 interface SessionContextValue {
   /** null = invitado o aún sin hidratar */
   user: User | null;
   login: (user: User | null) => void;
   signOut: () => void;
-  saveScore: (entry: Omit<SavedScore, "at">) => void;
 }
 
 const SessionContext = createContext<SessionContextValue | null>(null);
@@ -47,13 +40,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     writeUser(null);
   }, []);
 
-  const saveScore = useCallback((entry: Omit<SavedScore, "at">) => {
-    appendScore(entry);
-  }, []);
-
   const value = useMemo(
-    () => ({ user, login, signOut, saveScore }),
-    [user, login, signOut, saveScore],
+    () => ({ user, login, signOut }),
+    [user, login, signOut],
   );
 
   return (

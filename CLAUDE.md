@@ -17,7 +17,9 @@ Configuración relevante en `next.config.ts`: `cacheComponents: true`, `partialP
 
 ## Estado del proyecto
 
-`app/` (App Router) sigue siendo el scaffold de create-next-app (`page.tsx` y metadata por defecto). El producto, "Arcade Vault · Portal Retro" (plataforma para jugar online y competir por puntos, UI en español), existe solo como prototipo de referencia en `references/templates/` (trackeado en git), que debe portarse a Next/TypeScript.
+`app/` (App Router) ya implementa el producto "Arcade Vault · Portal Retro" (plataforma para jugar online y competir por puntos, UI en español): landing, `/library`, `/games/[id]`, `/games/[id]/play`, `/hall-of-fame`, `/about`, `/login`. Solo Asteroids tiene motor real; el resto de juegos usa un reproductor simulado. El prototipo original sigue en `references/templates/` (trackeado en git) como referencia visual.
+
+El catálogo y los puntajes viven en Supabase (SPEC 06): la capa de lectura está en `lib/data/` (`getGames`, `getGame`, `getTopScores`, con `use cache` y los tags `games` y `scores`) y los puntajes se guardan con la Server Action `submitScore` (`app/games/[id]/play/actions.ts`), que invalida el tag `scores` con `updateTag`. `lib/games.ts` solo conserva tipos y `CATS`. La sesión sigue siendo `localStorage["av_user"]` (solo cliente, hasta el spec de Auth).
 
 El `README.md` indica que el proyecto sigue Spec Driven Design (comandos `/spec` y `/spec-impl`, skills de `Klerith/fernando-skills`, instaladas con `npx skills@latest add Klerith/fernando-skills`).
 
@@ -42,7 +44,17 @@ Clientes (`@supabase/ssr`), ambos exportan `createClient` y lanzan un error clar
 - `lib/supabase/client.ts` — para Client Components (`createBrowserClient`).
 - `lib/supabase/server.ts` — asíncrono, para Server Components, Route Handlers y Server Actions (`createServerClient` con `await cookies()`). Crear uno por petición. Con `cacheComponents`, `cookies()` es un API de request time: llamarlo dentro de `<Suspense>` o en un route handler.
 
-Pendiente (cada uno en su propio spec): Auth (incluido `proxy` de refresco de sesión y reemplazo de `av_user`), tablas/RLS/migraciones y tipos generados, puntajes persistidos (`av_scores` sigue en `localStorage`), Realtime y Edge Functions.
+Esquema (migraciones `create_games_table` y `create_scores_table`, tipos generados en `lib/supabase/database.types.ts`; regenerar con el MCP tras cada migración):
+
+- `games` — catálogo sembrado en la migración; RLS solo `select` público. Los cambios de catálogo van en nuevas migraciones.
+- `scores` — `game_id` (FK), `player_name` (1 a 10 caracteres), `score` (1 a 1.000.000); RLS con `select` e `insert` públicos y sin `update`/`delete`. Los puntajes son anónimos (sin `user_id`).
+- `game_stats` — vista `security_invoker` con `plays` (`COUNT`) y `best` (`MAX`) por juego.
+
+Cliente adicional: `lib/supabase/public.ts` (sin cookies, `@supabase/supabase-js`) es el único que se usa dentro de funciones con `use cache`, donde `cookies()` no está permitido. `server.ts` solo se usa en la Server Action.
+
+Limitación asumida: cualquiera con la publishable key puede insertar puntajes falsos directamente, saltándose la Server Action; la defensa real son los CHECKs y la RLS de `scores`. No hay anti-trampa ni rate limit.
+
+Pendiente (cada uno en su propio spec): Auth (incluido `proxy` de refresco de sesión, reemplazo de `av_user`, `user_id` en `scores` y "tu mejor marca"), anti-trampa y rate limit, Realtime y Edge Functions.
 
 ## Skills
 
